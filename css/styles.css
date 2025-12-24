@@ -704,6 +704,7 @@ textarea.form-control {
     margin-bottom: var(--spacing-md);
     background: linear-gradient(to right, #D4AF37, #F2D06B);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.1;
 }
@@ -741,4 +742,81 @@ textarea.form-control {
     .night-life-content h2 {
         font-size: 2.8rem;
     }
+}
+
+/* Testimonials */
+.testimonials-section {
+    background-color: #0a0a0a;
+    position: relative;
+    padding: var(--spacing-xl) 0;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+.testimonial-card {
+    background: linear-gradient(145deg, #111, #161616);
+    border: 1px solid #222;
+    padding: 40px;
+    position: relative;
+    transition: var(--transition-smooth);
+    border-radius: 4px;
+}
+
+.testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 100px;
+    color: var(--accent-gold);
+    opacity: 0.1;
+    font-family: var(--font-heading);
+    line-height: 0.5;
+    pointer-events: none;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-gold-dim);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.testimonial-text {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: #e0e0e0;
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial-author {
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+.testimonial-author h5 {
+    color: var(--accent-gold);
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: var(--font-body);
+    font-weight: 700;
+}
+
+.testimonial-sub {
+    font-size: 0.8rem;
+    color: #777;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
 }
