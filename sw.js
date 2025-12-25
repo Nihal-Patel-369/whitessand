@@ -125,8 +125,8 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/images/icons/icon-192x192.png',
-      badge: '/images/icons/icon-96x96.png',
+      icon: '/images/logo.png',
+      badge: '/images/logo.png',
       vibrate: [200, 100, 200],
       tag: 'whitessand-notification',
       requireInteraction: true
