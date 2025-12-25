@@ -402,6 +402,50 @@ img {
     width: 100%;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.btn-install-nav {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--accent-gold), #F2D06B);
+    color: var(--bg-color);
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: var(--font-body);
+    display: none;
+}
+
+.btn-install-nav:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-install-nav span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+@media (max-width: 768px) {
+    .btn-install-nav {
+        padding: 8px 16px;
+        font-size: 0.75rem;
+    }
+    
+    .nav-actions {
+        gap: 8px;
+    }
+}
+
 
 .logo {
     display: flex;

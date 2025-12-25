@@ -424,57 +424,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Service Worker Registration
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then((registration) => {
-                    console.log('[Service Worker] Registered successfully:', registration.scope);
-                    
-                    // Check for updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        if (newWorker) {
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('[Service Worker] New version available');
-                                    // Optionally show update notification to user
-                                }
-                            });
-                        }
-                    });
-                })
-                .catch((error) => {
-                    console.error('[Service Worker] Registration failed:', error);
+        // Register immediately, don't wait for load
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then((registration) => {
+                console.log('[Service Worker] Registered successfully:', registration.scope);
+                
+                // Check if service worker is already controlling the page
+                if (registration.active) {
+                    console.log('[Service Worker] Active and controlling page');
+                }
+                
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (newWorker) {
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[Service Worker] New version available');
+                            }
+                        });
+                    }
                 });
-        });
+            })
+            .catch((error) => {
+                console.error('[Service Worker] Registration failed:', error);
+            });
     }
 
     // PWA Install Prompt
     let deferredPrompt;
     const installButton = document.getElementById('installButton');
+    const installButtonNav = document.getElementById('installButtonNav');
     const installBanner = document.getElementById('installBanner');
 
+    // Function to show install banner
+    const showInstallBanner = () => {
+        if (installBanner && !localStorage.getItem('installBannerDismissed')) {
+            installBanner.style.display = 'flex';
+        }
+        if (installButton) {
+            installButton.style.display = 'block';
+        }
+        if (installButtonNav) {
+            installButtonNav.style.display = 'inline-block';
+        }
+    };
+
+    // Check if app is installable
+    const checkInstallability = async () => {
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            console.log('[PWA] App is already installed');
+            if (installBanner) installBanner.style.display = 'none';
+            if (installButton) installButton.style.display = 'none';
+            return;
+        }
+
+        // Check if manifest is accessible
+        try {
+            const response = await fetch('/manifest.json');
+            if (!response.ok) {
+                console.error('[PWA] Manifest not accessible');
+                return;
+            }
+        } catch (error) {
+            console.error('[PWA] Error checking manifest:', error);
+            return;
+        }
+
+        // Show banner after a delay if prompt hasn't appeared
+        setTimeout(() => {
+            if (!deferredPrompt && installBanner) {
+                showInstallBanner();
+            }
+        }, 3000);
+    };
+
     window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('[PWA] beforeinstallprompt event fired');
         // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
         // Stash the event so it can be triggered later
         deferredPrompt = e;
         
-        // Show install button/banner if exists
-        if (installButton) {
-            installButton.style.display = 'block';
-        }
-        if (installBanner) {
-            installBanner.style.display = 'flex';
-        }
+        // Show install button/banner
+        showInstallBanner();
     });
 
-    // Handle install button click
-    if (installButton) {
-        installButton.addEventListener('click', async () => {
-            if (!deferredPrompt) {
-                return;
-            }
+    // Function to trigger install
+    const triggerInstall = async () => {
+        if (!deferredPrompt) {
+            console.log('[PWA] Install prompt not available. Showing manual instructions...');
+            // Show manual install instructions
+            alert('To install this app:\n\nChrome/Edge: Click the install icon in the address bar, or go to Menu (⋮) → Install app\n\nFirefox: Menu (☰) → Install\n\nSafari (iOS): Share button → Add to Home Screen');
+            return;
+        }
 
+        try {
             // Show the install prompt
             deferredPrompt.prompt();
 
@@ -489,10 +535,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (installButton) {
                 installButton.style.display = 'none';
             }
+            if (installButtonNav) {
+                installButtonNav.style.display = 'none';
+            }
             if (installBanner) {
                 installBanner.style.display = 'none';
             }
-        });
+        } catch (error) {
+            console.error('[PWA] Error showing install prompt:', error);
+        }
+    };
+
+    // Handle install button clicks
+    if (installButton) {
+        installButton.addEventListener('click', triggerInstall);
+    }
+    if (installButtonNav) {
+        installButtonNav.addEventListener('click', triggerInstall);
     }
 
     // Handle install banner close button
@@ -519,6 +578,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (installButton) {
             installButton.style.display = 'none';
         }
+        if (installButtonNav) {
+            installButtonNav.style.display = 'none';
+        }
         if (installBanner) {
             installBanner.style.display = 'none';
         }
@@ -527,15 +589,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // showNotification('WhitesSand installed successfully!');
     });
 
-    // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-        console.log('[PWA] App is running in standalone mode');
-        // Hide install button if app is already installed
-        if (installButton) {
-            installButton.style.display = 'none';
-        }
-        if (installBanner) {
-            installBanner.style.display = 'none';
-        }
-    }
+    // Check installability on load
+    checkInstallability();
+
+    // Also check periodically (in case service worker takes time to register)
+    setTimeout(checkInstallability, 2000);
+    setTimeout(checkInstallability, 5000);
 });
