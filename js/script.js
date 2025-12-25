@@ -354,6 +354,37 @@ document.addEventListener('DOMContentLoaded', () => {
         startAutoPlay();
     };
 
+    // Lazy Load Videos
+    const lazyVideos = document.querySelectorAll('video.lazy-video');
+
+    if ('IntersectionObserver' in window) {
+        const videoObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+
+                if (entry.isIntersecting) {
+                    // Start playing when in view
+                    video.play().catch(e => console.log("Auto-play prevented:", e));
+                } else {
+                    // Pause when out of view
+                    video.pause();
+                }
+            });
+        }, {
+            root: null,
+            threshold: 0.25 // Play when 25% visible
+        });
+
+        lazyVideos.forEach(video => {
+            videoObserver.observe(video);
+        });
+    } else {
+        // Fallback for older browsers: just play them
+        lazyVideos.forEach(video => {
+            video.play();
+        });
+    }
+
     // Initialize carousel
     initCarousel();
 });

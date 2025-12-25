@@ -507,7 +507,7 @@ textarea.form-control {
 
 /* Animations */
 .reveal {
-    opacity: 0;
+    opacity: 0.7;
     transform: translateY(30px);
     transition: all 0.8s ease;
 }
