@@ -11,9 +11,9 @@ const STATIC_ASSETS = [
   '/menu.html',
   '/gallery.html',
   '/contact.html',
-  '/css/styles.css',
-  '/js/script.js',
-  '/images/logo.png',
+  '/assets/css/styles.css',
+  '/assets/js/script.js',
+  '/assets/images/logo.png',
   '/manifest.json',
   '/robots.txt',
   '/sitemap.xml'
@@ -67,8 +67,28 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  // Allow caching of external resources (fonts, images from CDN)
+  const url = new URL(event.request.url);
+  const isExternalResource = !url.origin.startsWith(self.location.origin);
+  
+  // For external resources, use network-first strategy
+  if (isExternalResource) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(RUNTIME_CACHE)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
     return;
   }
 
@@ -125,8 +145,8 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/images/logo.png',
-      badge: '/images/logo.png',
+      icon: '/assets/images/logo.png',
+      badge: '/assets/images/logo.png',
       vibrate: [200, 100, 200],
       tag: 'whitessand-notification',
       requireInteraction: true
