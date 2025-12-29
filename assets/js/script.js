@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Keep description below video initially
                 storyText.style.transform = 'translateY(0)';
-                storyText.style.opacity = '0.5';
+                storyText.style.opacity = '1';
 
                 // No overlay yet
                 videoOverlay.style.opacity = '0';

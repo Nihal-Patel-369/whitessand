@@ -770,6 +770,10 @@ img {
     align-items: center;
 }
 
+.story-text {
+    opacity: 1;
+}
+
 .story-text h2 {
     font-size: 2.5rem;
     margin-bottom: var(--spacing-md);
