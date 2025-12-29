@@ -71,13 +71,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Fonts with font-display: swap for better performance -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
-        rel="stylesheet">
+    <!-- Fonts - Load asynchronously using media trick -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"></noscript>
 
-    <!-- Critical CSS inline or load with high priority -->
+    <!-- CSS - Must load synchronously to prevent FOUC -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    
+    <!-- Inline critical script to handle video loading -->
+    <script>
+        // Ensure hero video loads and plays when ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const heroVideo = document.querySelector('.hero video');
+            if (heroVideo) {
+                // Load video when page is ready
+                heroVideo.load();
+                // Try to play (browsers may block autoplay)
+                heroVideo.play().catch(function(error) {
+                    console.log('Video autoplay prevented:', error);
+                });
+            }
+        });
+    </script>
 </head>
 
 <body>
@@ -122,7 +138,7 @@
     <!-- Hero Section -->
     <header class="hero">
         <div class="video-background">
-            <video autoplay muted loop playsinline preload="metadata" poster="assets/images/logo.png">
+            <video autoplay muted loop playsinline preload="none" poster="assets/images/logo.png">
                 <source src="assets/video/cafe short video.mp4" type="video/mp4">
             </video>
             <div class="video-overlay"></div>

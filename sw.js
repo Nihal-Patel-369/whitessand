@@ -67,35 +67,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Allow caching of external resources (fonts, images from CDN)
+  // Skip cross-origin requests (let browser handle them natively for better performance)
   const url = new URL(event.request.url);
-  const isExternalResource = !url.origin.startsWith(self.location.origin);
-  
-  // For external resources, use network-first strategy
-  if (isExternalResource) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const responseToCache = response.clone();
-            caches.open(RUNTIME_CACHE)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        })
-    );
-    return;
+  if (!url.origin.startsWith(self.location.origin)) {
+    return; // Let browser handle external resources natively
   }
 
+  // For same-origin requests, use cache-first strategy for better performance
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
-        // Return cached version if available
+        // Return cached version if available (fast!)
         if (cachedResponse) {
           return cachedResponse;
         }
@@ -111,7 +93,7 @@ self.addEventListener('fetch', (event) => {
             // Clone the response
             const responseToCache = response.clone();
 
-            // Cache the fetched response
+            // Cache the fetched response for next time
             caches.open(RUNTIME_CACHE)
               .then((cache) => {
                 cache.put(event.request, responseToCache);
